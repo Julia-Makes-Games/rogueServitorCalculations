@@ -1,14 +1,15 @@
 import matplotlib.pyplot as plt
 import os.path
 from typing import Tuple
-
+import csv
 
 
 ProductionBonusTech = 0.3
 bioTrophyJob = 15
 bioTrophyProd = 0.01 # Multiply fabricatorOutput by this total per bioTrophy
 fabricatorJob = 6 # Add 2 to total due to building
-mineralUpkeep = 12*(1.3-0.2) # assumes foundry designation AND tier 3 production bonus
+mineralUpkeep1 = 12*(1.3-0.2) # assumes foundry designation AND tier 3 production bonus
+mineralUpkeep2 = 14*(1.3-0.2)
 
 def genGraph(size):
     basePlanetSize = size
@@ -23,7 +24,7 @@ def genGraph(size):
         alloyOut = round((fabricatorProd * (totalAlloyJobs + 2)) * (
                     1.2 + ProductionBonusTech + (i * bioTrophyJob) * bioTrophyProd), 3)
         y1.append(alloyOut)
-        u1.append([round(((totalAlloyJobs + 2) * mineralUpkeep), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
+        u1.append([round(((totalAlloyJobs + 2) * mineralUpkeep2), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
 
     x2: [int] = x1
     y2: [float] = []
@@ -34,7 +35,7 @@ def genGraph(size):
         alloyOut = round((fabricatorProd * (totalAlloyJobs + 2)) * (
                     1.15 + ProductionBonusTech + (i * bioTrophyJob) * bioTrophyProd), 3)
         y2.append(alloyOut)
-        u2.append([round(((totalAlloyJobs + 2) * mineralUpkeep), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
+        u2.append([round(((totalAlloyJobs + 2) * mineralUpkeep2), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
 
     x3: [int] = x1
     y3: [float] = []
@@ -48,7 +49,7 @@ def genGraph(size):
         alloyOut = round((fabricatorProd * (totalAlloyJobs + 2)) * (
                     1.2 + ProductionBonusTech + (i * bioTrophyJob) * bioTrophyProd), 3)
         y3.append(alloyOut)
-        u3.append([round(((totalAlloyJobs + 2) * mineralUpkeep), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
+        u3.append([round(((totalAlloyJobs + 2) * mineralUpkeep1), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
 
     x4: [int] = x1
     y4: [float] = []
@@ -62,7 +63,7 @@ def genGraph(size):
         alloyOut = round((fabricatorProd * (totalAlloyJobs + 2)) * (
                     1.15 + ProductionBonusTech + (i * bioTrophyJob) * bioTrophyProd), 3)
         y4.append(alloyOut)
-        u4.append([round(((totalAlloyJobs + 2) * mineralUpkeep), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
+        u4.append([round(((totalAlloyJobs + 2) * mineralUpkeep1), 2), (i * bioTrophyJob), (i * bioTrophyJob)])
 
     # get max indexes
     max1 = [index for index, item in enumerate(y1) if item == max(y1)]
@@ -82,7 +83,7 @@ def genGraph(size):
     plt.scatter(x3, y3, label=lab3, color="green", marker="*", s=20)
     plt.scatter(x4, y4, label=lab4, color="red", marker="*", s=20)
 
-    fileName: str = "Size" + str(basePlanetSize) + ".txt"
+    fileName: str = "planetData.csv"
     graphFileName: str = "Size" + str(basePlanetSize) + ".png"
     plt.xlabel('Sanctuary Arcologies')
     plt.ylabel('Alloy Output')
@@ -90,45 +91,38 @@ def genGraph(size):
     plt.legend()
     plt.savefig(os.path.join("dataCollected", graphFileName))
     try:
-        with open(os.path.join("dataCollected", fileName), "x") as f:
-            f.write("OR+EP:\n")
+        with open(os.path.join("dataCollected", fileName), "x", newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["OR+EP:", str(basePlanetSize)])
             for i in range(len(y1)):
-                f.write(str(x1[i]) + " : " + str(y1[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
-            f.write("\nOrbital Ring:\n")
+                writer.writerow([x1[i], y1[i], u1[i][0], u1[i][1], u1[i][2]])
+            writer.writerow(["Orbital Ring:"])
             for i in range(len(y2)):
-                f.write(str(x2[i]) + " : " + str(y2[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
-            f.write("\nEfficient Processors:\n")
+                writer.writerow([x2[i], y2[i], u2[i][0], u2[i][1], u2[i][2]])
+            writer.writerow(["Efficient Processors:"])
             for i in range(len(y3) - 4):
-                f.write(str(x3[i]) + " : " + str(y3[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
-            f.write("\nBase Production:\n")
+                writer.writerow([x3[i], y3[i], u3[i][0], u3[i][1], u3[i][2]])
+            writer.writerow(["Base Production:"])
             for i in range(len(y4) - 4):
-                f.write(str(x4[i]) + " : " + str(y4[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
+                writer.writerow([x4[i], y4[i], u4[i][0], u4[i][1], u4[i][2]])
     except FileExistsError:
-        with open(os.path.join("dataCollected", fileName), "w") as f:
-            f.write("OR+EP:\n")
+        with open(os.path.join("dataCollected", fileName,), "a", newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["OR+EP:", str(basePlanetSize)])
             for i in range(len(y1)):
-                f.write(str(x1[i]) + " : " + str(y1[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
-            f.write("\nOrbital Ring:\n")
+                writer.writerow([x1[i],y1[i],u1[i][0], u1[i][1],u1[i][2]])
+            writer.writerow(["Orbital Ring:"])
             for i in range(len(y2)):
-                f.write(str(x2[i]) + " : " + str(y2[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
-            f.write("\nEfficient Processors:\n")
+                writer.writerow([x2[i],y2[i],u2[i][0], u2[i][1],u2[i][2]])
+            writer.writerow(["Efficient Processors:"])
             for i in range(len(y3) - 4):
-                f.write(str(x3[i]) + " : " + str(y3[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
-            f.write("\nBase Production:\n")
+                writer.writerow([x3[i],y3[i],u3[i][0], u3[i][1],u3[i][2]])
+            writer.writerow(["Base Production:"])
             for i in range(len(y4) - 4):
-                f.write(str(x4[i]) + " : " + str(y4[i]) + " : " + str(u1[i][0]) + " : " + str(u1[i][1]) + " : " + str(
-                    u1[i][2]) + '\n')
+                writer.writerow([x4[i],y4[i],u4[i][0],u4[i][1],u4[i][2]])
     plt.close()
 
 
-for size in range(6,33):
+for size in range(6,36):
     genGraph(size)
-genGraph(39)
 #plt.show()
