@@ -11,6 +11,9 @@ fabricatorJob = 6 # Add 2 to total due to building
 mineralUpkeep1 = 12*(1.3-0.2) # assumes foundry designation AND tier 3 production bonus
 mineralUpkeep2 = 14*(1.3-0.2)
 
+if os.path.isfile("dataCollected/planetData.csv"):
+    os.remove("dataCollected/planetData.csv")
+
 def genGraph(size):
     basePlanetSize = size
     planetSize = basePlanetSize + 4  # For orbital Ring
@@ -84,8 +87,6 @@ def genGraph(size):
     plt.scatter(x4, y4, label=lab4, color="red", marker="*", s=20)
 
     fileName: str = "planetData.csv"
-    if os.path.isfile("dataCollected/planetData.csv"):
-        os.remove("dataCollected/planetData.csv")
     graphFileName: str = "Size" + str(basePlanetSize) + ".png"
     plt.xlabel('Sanctuary Arcologies')
     plt.ylabel('Alloy Output')
