@@ -84,6 +84,8 @@ def genGraph(size):
     plt.scatter(x4, y4, label=lab4, color="red", marker="*", s=20)
 
     fileName: str = "planetData.csv"
+    if os.path.isfile("dataCollected/planetData.csv"):
+        os.remove("dataCollected/planetData.csv")
     graphFileName: str = "Size" + str(basePlanetSize) + ".png"
     plt.xlabel('Sanctuary Arcologies')
     plt.ylabel('Alloy Output')
